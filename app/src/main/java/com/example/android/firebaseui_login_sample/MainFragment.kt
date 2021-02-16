@@ -50,12 +50,11 @@ class MainFragment : Fragment() {
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_main, container, false)
 
-        // TODO Remove the two lines below once observeAuthenticationState is implemented.
-        binding.welcomeText.text = viewModel.getFactToDisplay(requireContext())
-        binding.authButton.text = getString(R.string.login_btn)
+        // DONE Remove the two lines below once observeAuthenticationState is implemented.
 
         return binding.root
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -67,6 +66,7 @@ class MainFragment : Fragment() {
         }
     }
 
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -77,7 +77,10 @@ class MainFragment : Fragment() {
             val response = IdpResponse.fromResultIntent(data)
             if (resultCode == RESULT_OK) {
                 // User successfully signed in
-                Log.i(TAG, "Successfully signed in user ${FirebaseAuth.getInstance().currentUser?.displayName}!")
+                Log.i(
+                    TAG,
+                    "Successfully signed in user ${FirebaseAuth.getInstance().currentUser?.displayName}!"
+                )
             } else {
                 // Sign in failed. If response is null the user canceled the
                 // sign-in flow using the back button. Otherwise check
@@ -88,50 +91,69 @@ class MainFragment : Fragment() {
     }
 
 
-/**
- * Observes the authentication state and changes the UI accordingly.
- * If there is a logged in user: (1) show a logout button and (2) display their name.
- * If there is no logged in user: show a login button
- */
-private fun observeAuthenticationState() {
-    val factToDisplay = viewModel.getFactToDisplay(requireContext())
+    /**
+     * Observes the authentication state and changes the UI accordingly.
+     * If there is a logged in user: (1) show a logout button and (2) display their name.
+     * If there is no logged in user: show a login button
+     */
+    private fun observeAuthenticationState() {
+        val factToDisplay = viewModel.getFactToDisplay(requireContext())
 
-    // TODO Use the authenticationState variable from LoginViewModel to update the UI
-    //  accordingly.
-    //
-    //  TODO If there is a logged-in user, authButton should display Logout. If the
-    //   user is logged in, you can customize the welcome message by utilizing
-    //   getFactWithPersonalition(). I
+        viewModel.authenticationState.observe(viewLifecycleOwner, Observer { authenticationState ->
+            when (authenticationState) {
+                LoginViewModel.AuthenticationState.AUTHENTICATED -> {
+                    binding.welcomeText.text =
+                        getFactWithPersonalization(factToDisplay)
+                    binding.authButton.text = getString(R.string.logout_button_text)
+                    binding.authButton.setOnClickListener {
+                        AuthUI.getInstance().signOut(requireContext())
+                    }
+                }
+                else -> {
+                    binding.authButton.text = getString(R.string.login_button_text)
+                    binding.authButton.setOnClickListener {
+                        launchSignInFlow()
+                    }
+                    binding.welcomeText.text = factToDisplay
+                }
+            }
+        })
+        // TODO Use the authenticationState variable from LoginViewModel to update the UI
+        //  accordingly.
+        //
+        //  TODO If there is a logged-in user, authButton should display Logout. If the
+        //   user is logged in, you can customize the welcome message by utilizing
+        //   getFactWithPersonalition(). I
 
-    // TODO If there is no logged in user, authButton should display Login and launch the sign
-    //  in screen when clicked. There should also be no personalization of the message
-    //  displayed.
-}
+        // TODO If there is no logged in user, authButton should display Login and launch the sign
+        //  in screen when clicked. There should also be no personalization of the message
+        //  displayed.
+    }
 
 
-private fun getFactWithPersonalization(fact: String): String {
-    return String.format(
-        resources.getString(
-            R.string.welcome_message_authed,
-            FirebaseAuth.getInstance().currentUser?.displayName,
-            Character.toLowerCase(fact[0]) + fact.substring(1)
+    private fun getFactWithPersonalization(fact: String): String {
+        return String.format(
+            resources.getString(
+                R.string.welcome_message_authed,
+                FirebaseAuth.getInstance().currentUser?.displayName,
+                Character.toLowerCase(fact[0]) + fact.substring(1)
+            )
         )
-    )
-}
+    }
 
-private fun launchSignInFlow() {
-    // DONE Complete this function by allowing users to register and sign in with
-    //  either their email address or Google account.
+    private fun launchSignInFlow() {
+        // DONE Complete this function by allowing users to register and sign in with
+        //  either their email address or Google account.
 
-    val providers = arrayListOf(
-        AuthUI.IdpConfig.GoogleBuilder().build(),
-        AuthUI.IdpConfig.EmailBuilder().build()
-    )
+        val providers = arrayListOf(
+            AuthUI.IdpConfig.GoogleBuilder().build(),
+            AuthUI.IdpConfig.EmailBuilder().build()
+        )
 
-    startActivityForResult(
-        AuthUI.getInstance().createSignInIntentBuilder()
-            .setAvailableProviders(providers)
-            .build(), MainFragment.SIGN_IN_REQUEST_CODE
-    )
-}
+        startActivityForResult(
+            AuthUI.getInstance().createSignInIntentBuilder()
+                .setAvailableProviders(providers)
+                .build(), MainFragment.SIGN_IN_REQUEST_CODE
+        )
+    }
 }
