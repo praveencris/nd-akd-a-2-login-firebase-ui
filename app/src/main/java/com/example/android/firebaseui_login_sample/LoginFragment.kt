@@ -73,6 +73,18 @@ class LoginFragment : Fragment() {
             //Pop every thing from back stack and navigate to MainFragment
             navController.popBackStack(R.id.mainFragment, false)
         }
+
+        viewModel.authenticationState.observe(viewLifecycleOwner, Observer { authenticationState ->
+            when (authenticationState) {
+                LoginViewModel.AuthenticationState.AUTHENTICATED -> {
+                 navController.popBackStack()
+                }
+                else -> Log.e(
+                    TAG,
+                    "Authentication state that doesn't require any UI change $authenticationState"
+                )
+            }
+        })
     }
 
     private fun launchSignInFlow() {

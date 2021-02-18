@@ -122,14 +122,14 @@ class MainFragment : Fragment() {
                 }
             }
         })
-        // TODO Use the authenticationState variable from LoginViewModel to update the UI
+        // DONE Use the authenticationState variable from LoginViewModel to update the UI
         //  accordingly.
         //
-        //  TODO If there is a logged-in user, authButton should display Logout. If the
+        //  DONE If there is a logged-in user, authButton should display Logout. If the
         //   user is logged in, you can customize the welcome message by utilizing
         //   getFactWithPersonalition(). I
 
-        // TODO If there is no logged in user, authButton should display Login and launch the sign
+        // DONE If there is no logged in user, authButton should display Login and launch the sign
         //  in screen when clicked. There should also be no personalization of the message
         //  displayed.
     }
