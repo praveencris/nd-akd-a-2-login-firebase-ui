@@ -64,6 +64,10 @@ class MainFragment : Fragment() {
             // DONE call launchSignInFlow when authButton is clicked
             launchSignInFlow()
         }
+        binding.settingsBtn.setOnClickListener {
+
+            findNavController().navigate(R.id.action_mainFragment_to_settingsFragment)
+        }
     }
 
 
@@ -156,4 +160,5 @@ class MainFragment : Fragment() {
                 .build(), MainFragment.SIGN_IN_REQUEST_CODE
         )
     }
+
 }
